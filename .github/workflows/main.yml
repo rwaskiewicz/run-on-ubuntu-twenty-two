@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - '**'
+
+jobs:
+  run_it:
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # v3.1.0
+        with:
+          # the pull_request_target event will consider the HEAD of `main` to be the SHA to use.
+          # attempt to use the SHA associated with a pull request and fallback to HEAD of `main`
+          ref: ${{ github.event_name == 'pull_request_target' && format('refs/pull/{0}/merge', github.event.number) || '' }}
+          persist-credentials: false
+
+      # this overrides previous versions of the node runtime that was set.
+      # jobs that need a different version of the Node runtime should explicitly
+      # set their node version after running this step
+      - name: Use Node Version from Volta
+        uses: actions/setup-node@8c91899e586c5b171469028077307d293428b516 # v3.5.1
+        with:
+          node-version-file: './package.json'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+        shell: bash
+
+      - name: Run Tests
+        run: npm run test
+        shell: bash
