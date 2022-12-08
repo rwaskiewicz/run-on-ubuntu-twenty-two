@@ -29,4 +29,17 @@ describe('my-component', () => {
     await page.waitForChanges();
     expect(element.textContent).toEqual(`Hello, World! I'm James Earl Quincy`);
   });
+
+  it('replication testing', async () => {
+    const page = await newE2EPage({
+      html: `<my-component></my-component>`,
+      failOnConsoleError: true,
+    });
+    await page.waitForChanges();
+
+    const element = await page.find('my-component');
+
+    expect(await element.isVisible()).toBe(true);
+    expect((await element.getComputedStyle()).display).toBe('block');
+  });
 });
